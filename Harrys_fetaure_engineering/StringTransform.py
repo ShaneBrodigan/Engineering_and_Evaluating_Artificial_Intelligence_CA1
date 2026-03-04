@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from Transform import Transform
+from .Transform import Transform
 
 class StringTransform(Transform):
     @abstractmethod
@@ -22,6 +22,7 @@ class LabelEncode(StringTransform):
 class WordEmbeddings(StringTransform):
     def transform(self, data: str):
         print(f"word_embeddings: {data}")
+
         return data
 
 

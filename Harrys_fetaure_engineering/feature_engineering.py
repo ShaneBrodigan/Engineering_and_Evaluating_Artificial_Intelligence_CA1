@@ -1,5 +1,5 @@
-from StringTransform import OnehotEncode, LabelEncode, WordEmbeddings
-from NumericTransform import Normalize, Standardize
+from .StringTransform import OnehotEncode, LabelEncode, WordEmbeddings
+from .NumericTransform import Normalize, Standardize
 
 def process_data(data):
     one_hot = OnehotEncode()

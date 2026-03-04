@@ -1,5 +1,5 @@
 from abc import abstractmethod
-import Transform
+from .Transform import Transform
 
 class NumericTransform(Transform):
     @abstractmethod
