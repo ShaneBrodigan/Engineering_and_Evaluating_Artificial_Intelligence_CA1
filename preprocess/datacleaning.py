@@ -1,4 +1,7 @@
-def rename_headers(df):
+import pandas as pd
+
+
+def rename_headers(df: pd.DataFrame) -> pd.DataFrame:
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(' ', '_')
     df.columns = df.columns.str.strip()
@@ -6,19 +9,40 @@ def rename_headers(df):
     return df
 
 
-def drop_unnamed_cols(df):
+def drop_unnamed_cols(df: pd.DataFrame) -> pd.DataFrame:
     unnamed_cols = df.columns[df.columns.str.startswith('unnamed')]
     no_unnamed_cols_df = df.drop(unnamed_cols, axis=1)
 
     return no_unnamed_cols_df
 
 
-def merge_dfs(df1, df2):
-    # Merge datasets
-    pass
+def merge_dfs(dfs: list[pd.DataFrame]) -> pd.DataFrame:
+    merged_df = pd.concat(dfs)
+    no_dups_df = drop_true_duplicate_rows(merged_df)
 
+    return no_dups_df
+
+
+def drop_true_duplicate_rows(df: pd.DataFrame) -> pd.DataFrame:
+    dups_removed = df.drop_duplicates(inplace=False)
+
+    return dups_removed
+
+def drop_useless_cols(df: pd.DataFrame) -> pd.DataFrame:
+    df.drop(['ticket_id','interaction_id', 'interaction_date'], axis=1, inplace=True)
+
+    return df
 
 class NaHandler():
-    def dropna(self):
-        # drop nulls
-        pass
+    essential_cols = []
+
+    def __init__(self, col_names: list) -> None:
+        self.essential_cols = col_names
+
+    def drop_na_rows(self, df):
+        cols = self.essential_cols
+
+        for col in cols:
+            df = df[~df[col].isna()]
+        return df
+
