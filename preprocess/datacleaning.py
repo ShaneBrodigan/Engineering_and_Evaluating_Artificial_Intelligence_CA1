@@ -36,8 +36,9 @@ def drop_useless_cols(df: pd.DataFrame) -> pd.DataFrame:
 class NaHandler():
     essential_cols = []
 
-    def __init__(self, col_names: list) -> None:
-        self.essential_cols = col_names
+    def __init__(self, essential_col_names: list) -> None:
+        self.essential_cols = essential_col_names
+
 
     def drop_na_rows(self, df):
         cols = self.essential_cols
@@ -45,4 +46,6 @@ class NaHandler():
         for col in cols:
             df = df[~df[col].isna()]
         return df
+
+
 
