@@ -9,6 +9,14 @@ def rename_headers(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def col_rows_to_lowercase(df: pd.DataFrame) -> pd.DataFrame:
+    word_cols = df.select_dtypes(include='object').columns
+    for col in word_cols:
+        df[col] = df[col].str.lower()
+
+    return df
+
+
 def drop_unnamed_cols(df: pd.DataFrame) -> pd.DataFrame:
     unnamed_cols = df.columns[df.columns.str.startswith('unnamed')]
     no_unnamed_cols_df = df.drop(unnamed_cols, axis=1)
