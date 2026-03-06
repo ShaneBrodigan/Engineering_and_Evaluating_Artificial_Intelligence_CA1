@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -64,8 +66,20 @@ class WordEmbeddings(StringTransform):
         if len(WORD_EMBEDDING_COLS) == 0:
             return df
 
-        print(f"word_embeddings: {df}")
+        df = df.reset_index(drop=True)
+        cols_for_wrd_embedding = WORD_EMBEDDING_COLS
+        dfs_to_concat = [df.drop(cols_for_wrd_embedding, axis=1)]
 
+        for col in cols_for_wrd_embedding:
+            tfidf = TfidfVectorizer(max_features=20)
+            X = tfidf.fit_transform(df[col])
+            tfidf_df = pd.DataFrame(
+                X.toarray(),
+                columns=[f"{col}_{word}" for word in tfidf.get_feature_names_out()]
+            )
+            dfs_to_concat.append(tfidf_df)
+
+        df = pd.concat(dfs_to_concat, axis=1)
         return df
 
 
