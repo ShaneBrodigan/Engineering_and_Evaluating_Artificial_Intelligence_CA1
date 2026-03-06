@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-import feature_engineering as fe
 
 WORD_EMBEDDING_COLS = ["interaction_content", "ticket_summary"]
 ONE_HOT_COLS = ['type_1']
