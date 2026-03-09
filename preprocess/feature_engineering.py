@@ -48,9 +48,9 @@ class FeatureEngineering:
         return identified_cols
 
 
-    def process_data(self, dataframe):
+    def process_data(self):
         one_hot = OnehotEncode()
-        df = one_hot.transform(dataframe)
+        df = one_hot.transform(self.dataframe)
 
         frequency_encode = FrequencyEncode()
         df = frequency_encode.transform(df)

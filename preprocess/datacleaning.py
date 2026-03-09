@@ -1,4 +1,5 @@
 import pandas as pd
+from .Transform import Translate
 
 
 def rename_headers(df: pd.DataFrame) -> pd.DataFrame:
@@ -39,6 +40,11 @@ def drop_true_duplicate_rows(df: pd.DataFrame) -> pd.DataFrame:
 def drop_useless_cols(df: pd.DataFrame) -> pd.DataFrame:
     df.drop(['ticket_id','interaction_id', 'interaction_date'], axis=1, inplace=True)
 
+    return df
+
+def translate_to_en(df: pd.DataFrame) -> pd.DataFrame:
+    translator = Translate()
+    df = translator.transform(df)
     return df
 
 class NaHandler():
