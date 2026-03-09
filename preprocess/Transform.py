@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from numpy.matlib import empty
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 import pandas as pd
@@ -149,8 +150,17 @@ class Translate(StringTransform):
                                     if not token.is_stop and not token.is_punct and not token.is_space]
 
             # 5. Join the lists back into strings so they fit in the CSV/Dataframe
-            df_to_clean.at[index, 'ticket_summary'] = " ".join(cleaned_summary_list)
-            df_to_clean.at[index, 'interaction_content'] = " ".join(cleaned_content_list)
+            summary_str = " ".join(cleaned_summary_list)
+            content_str= " ".join(cleaned_content_list)
+
+            df_to_clean.at[index, 'ticket_summary'] = summary_str
+            df_to_clean.at[index, 'interaction_content'] = content_str
+
+        # If spacy removes all words during cleaning it returns 'null' instead. This causes errors during word embedding
+        df_to_clean['ticket_summary'] = df_to_clean['ticket_summary'].replace("null", "Empty")
+        df_to_clean['ticket_summary'] = df_to_clean['ticket_summary'].fillna("Empty")
+        df_to_clean['interaction_content'] = df_to_clean['interaction_content'].replace("null", "Empty")
+        df_to_clean['interaction_content'] = df_to_clean['interaction_content'].fillna("Empty")
 
         return df_to_clean
 

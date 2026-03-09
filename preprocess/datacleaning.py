@@ -38,7 +38,8 @@ def drop_true_duplicate_rows(df: pd.DataFrame) -> pd.DataFrame:
     return dups_removed
 
 def drop_useless_cols(df: pd.DataFrame) -> pd.DataFrame:
-    df.drop(['ticket_id','interaction_id', 'interaction_date'], axis=1, inplace=True)
+    # ADD BACK IN 'interaction_id'!!!!!
+    df.drop(['ticket_id', 'interaction_date'], axis=1, inplace=True)
 
     return df
 
