@@ -6,7 +6,7 @@ import numpy as np
 import preprocess.datacleaning as dc
 from config import Config
 from preprocess import feature_engineering
-from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting
+from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting, NeuralNetwork
 
 def main():
     config = Config()
@@ -96,6 +96,20 @@ def main():
     X_train, X_test, y_train, y_test = ensemble.train_test_split(df, target='type_2', test_size=0.3)
     ensemble.fit(X_train, y_train)
     ensemble.evaluate(X_test, y_test)
+
+
+    #Neural Network
+    # 1. Determine shapes based on your preprocessed data
+    num_features = X_train.shape[1]
+    num_classes = len(np.unique(y_train))  # Count unique categories in the target
+
+    # 2. Instantiate and run
+    model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128,64,32])
+
+    # We already have X_train, X_test, y_train, y_test from model.train_test_split
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    model.evaluate(X_test, y_test)
 
 
 if __name__ == "__main__":
