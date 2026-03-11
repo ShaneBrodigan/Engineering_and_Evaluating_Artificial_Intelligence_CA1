@@ -38,9 +38,9 @@ def main():
     # Translated dataframe to english.
     # Also, cleaned dataframe to get rid of any noise prior creating word embeddings.
 
-    # df = dc.translate_to_en(df)
-    # writer = Writer()
-    # writer.write_out(df, './translated_df.csv')
+    #df = dc.translate_to_en(df)
+    #writer = Writer()
+    #writer.write_out(df, './translated_df.csv')
     df = reader.read_in('./translated_df.csv')
 
     # Feature Engineered Dataset.
