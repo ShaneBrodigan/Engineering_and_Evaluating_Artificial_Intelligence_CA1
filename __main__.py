@@ -6,7 +6,7 @@ import numpy as np
 import preprocess.datacleaning as dc
 from config import Config
 from preprocess import feature_engineering
-from model.model import RandomForest,Model
+from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting
 
 def main():
     config = Config()
@@ -57,6 +57,46 @@ def main():
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
+
+    model = AdaBoost(n_estimators=100, learning_rate=0.5)
+    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2')
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    model.evaluate(X_test, y_test)
+
+    model = ExtraTrees(n_estimators=100, criterion='entropy', n_jobs=-1)
+    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2')
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    model.evaluate(X_test, y_test)
+
+    model = HistGradient(max_iter=100, learning_rate=0.1)
+    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2', test_size=0.3)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    model.evaluate(X_test, y_test)
+
+    model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
+    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2', test_size=0.3)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    model.evaluate(X_test, y_test)
+
+    # Voting Classifier pipeline
+    rf = RandomForest(n_estimators=100, criterion='entropy')
+    et = ExtraTrees(n_estimators=100, criterion='entropy')
+    ada = AdaBoost(n_estimators=100)
+
+    ensemble = Voting(estimators=[
+        ('rf_model', rf),
+        ('et_model', et),
+        ('ada_model', ada)
+    ], voting='hard')
+
+    X_train, X_test, y_train, y_test = ensemble.train_test_split(df, target='type_2', test_size=0.3)
+    ensemble.fit(X_train, y_train)
+    ensemble.evaluate(X_test, y_test)
+
 
 if __name__ == "__main__":
     main()
