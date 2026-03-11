@@ -6,6 +6,7 @@ import numpy as np
 import preprocess.datacleaning as dc
 from config import Config
 from preprocess import feature_engineering
+from model.model import RandomForest,Model
 
 def main():
     config = Config()
@@ -47,9 +48,15 @@ def main():
     fe = feature_engineering.FeatureEngineering(df)
     df = fe.process_data()
 
-    print(df.info())
+    type_3 = df['type_3']
+    type_4 = df['type_4']
+    df = df.drop(columns=['type_3', 'type_4'])
 
-    print("Testing...")
+    model = RandomForest(criterion='entropy', n_estimators=100)
+    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2', test_size=0.3)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    model.evaluate(X_test, y_test)
 
 if __name__ == "__main__":
     main()
