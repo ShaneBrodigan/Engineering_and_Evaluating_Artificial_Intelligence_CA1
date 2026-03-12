@@ -7,6 +7,7 @@ import preprocess.datacleaning as dc
 from config import Config
 from preprocess import feature_engineering
 from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting, NeuralNetwork
+from modelling.modelling import Modelling
 
 def main():
     config = Config()
@@ -52,32 +53,30 @@ def main():
     type_4 = df['type_4']
     df = df.drop(columns=['type_3', 'type_4'])
 
+    modelling = Modelling()
+    X_train, X_test, y_train, y_test = modelling.train_test_split(df, target='type_2', test_size=0.3)
+
     model = RandomForest(criterion='entropy', n_estimators=100)
-    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2', test_size=0.3)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
 
     model = AdaBoost(n_estimators=100, learning_rate=0.5)
-    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2')
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
 
     model = ExtraTrees(n_estimators=100, criterion='entropy', n_jobs=-1)
-    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2')
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
 
     model = HistGradient(max_iter=100, learning_rate=0.1)
-    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2', test_size=0.3)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
 
     model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
-    X_train, X_test, y_train, y_test = model.train_test_split(df, target='type_2', test_size=0.3)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
@@ -93,10 +92,8 @@ def main():
         ('ada_model', ada)
     ], voting='hard')
 
-    X_train, X_test, y_train, y_test = ensemble.train_test_split(df, target='type_2', test_size=0.3)
     ensemble.fit(X_train, y_train)
     ensemble.evaluate(X_test, y_test)
-
 
     #Neural Network
     # 1. Determine shapes based on your preprocessed data
