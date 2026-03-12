@@ -54,75 +54,8 @@ def main():
     df = df.drop(columns=['type_3', 'type_4'])
 
     modelling = Modelling(df, target_col='type_2', test_size=0.3)
-
-    """
-    X_train, X_test, y_train, y_test = modelling.train_test_split(df, target='type_2', test_size=0.3)
-
-    model = RandomForest(criterion='entropy', n_estimators=300)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    model.evaluate(X_test, y_test)
-    model.report(X_test, y_test)
-    model.show_confusion_matrix(X_test, y_test)
-
-    model = AdaBoost(n_estimators=300, learning_rate=0.5)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    model.evaluate(X_test, y_test)
-    model.report(X_test, y_test)
-    model.show_confusion_matrix(X_test, y_test)
-
-    model = ExtraTrees(n_estimators=300, criterion='entropy', n_jobs=-1)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    model.evaluate(X_test, y_test)
-    model.report(X_test, y_test)
-    model.show_confusion_matrix(X_test, y_test)
-
-    model = HistGradient(max_iter=300, learning_rate=0.1)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    model.evaluate(X_test, y_test)
-    model.report(X_test, y_test)
-    model.show_confusion_matrix(X_test, y_test)
-
-    model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    model.evaluate(X_test, y_test)
-    model.report(X_test, y_test)
-    model.show_confusion_matrix(X_test, y_test)
-
-    # Voting Classifier pipeline
-    rf = RandomForest(n_estimators=100, criterion='entropy')
-    et = ExtraTrees(n_estimators=100, criterion='entropy')
-    ada = AdaBoost(n_estimators=100)
-
-    ensemble = Voting(estimators=[
-        ('rf_model', rf),
-        ('et_model', et),
-        ('ada_model', ada)], voting='hard')
-
-    ensemble.fit(X_train, y_train)
-    ensemble.evaluate(X_test, y_test)
-    model.report(X_test, y_test)
-    model.show_confusion_matrix(X_test, y_test)
-
-    #Neural Network
-    # 1. Determine shapes based on your preprocessed data
-    num_features = X_train.shape[1]
-    num_classes = len(np.unique(y_train))  # Count unique categories in the target
-
-    # 2. Instantiate and run
-    model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128,64,32])
-
-    # We already have X_train, X_test, y_train, y_test from model.train_test_split
-    model.fit(X_train, y_train, epochs=10)
-    y_pred = model.predict(X_test)
-    model.evaluate(X_test, y_test)
-    model.report(X_test, y_test)
-    model.show_confusion_matrix(X_test, y_test)
-    """
+    best_pred = modelling.get_best_pred()
+    print(best_pred)
 
 if __name__ == "__main__":
     main()

@@ -1,9 +1,13 @@
 from sklearn.model_selection import train_test_split
 from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting, NeuralNetwork
+import numpy as np
+import pandas as pd
 
 class Modelling:
     def __init__(self, df, target_col, test_size):
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size)
+        self.best_model_pred = None
+        self.best_f1_score = 0
         self.do_modelling()
 
     def train_test_split(self, df, target, test_size=0.2):
@@ -19,7 +23,89 @@ class Modelling:
         # Random Forest
         model = RandomForest(criterion='entropy', n_estimators=300)
         model.fit(self.X_train, self.y_train)
-        y_pred = model.predict(self.X_test)
+        model.y_pred = model.predict(self.X_test)
+        model.evaluate(self.X_test, self.y_test)
+        model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average='weighted')
+        print(f"f1_score: {f1_score}")
+        model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average='weighted')
+
+        # AdaBoost
+        model = AdaBoost(n_estimators=300, learning_rate=0.5)
+        model.fit(self.X_train, self.y_train)
+        model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
         model.show_confusion_matrix(self.X_test, self.y_test)
+
+        # ExtraTrees
+        model = ExtraTrees(n_estimators=300, criterion='entropy', n_jobs=-1)
+        model.fit(self.X_train, self.y_train)
+        model.y_pred = model.predict(self.X_test)
+        model.evaluate(self.X_test, self.y_test)
+        model.report(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, self.y_test)
+
+        # HistGradient
+        model = HistGradient(max_iter=300, learning_rate=0.1)
+        model.fit(self.X_train, self.y_train)
+        model.y_pred = model.predict(self.X_test)
+        model.evaluate(self.X_test, self.y_test)
+        model.report(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, self.y_test)
+
+        # SDGModel
+        model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
+        model.fit(self.X_train, self.y_train)
+        model.y_pred = model.predict(self.X_test)
+        model.evaluate(self.X_test, self.y_test)
+        model.report(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, self.y_test)
+
+        # Voting Classifier pipeline
+        rf = RandomForest(n_estimators=100, criterion='entropy')
+        et = ExtraTrees(n_estimators=100, criterion='entropy')
+        ada = AdaBoost(n_estimators=100)
+
+        model = Voting(estimators=[
+            ('rf_model', rf),
+            ('et_model', et),
+            ('ada_model', ada)], voting='hard')
+
+        model.fit(self.X_train, self.y_train)
+        model.y_pred = model.predict(self.X_test)
+        model.evaluate(self.X_test, self.y_test)
+        model.report(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, self.y_test)
+
+        # Neural Network - Shallow
+        num_features = self.X_train.shape[1]
+        num_classes = len(np.unique(self.y_train))
+
+        model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
+        model.fit(self.X_train, self.y_train, epochs=100)
+        model.y_pred = model.predict(self.X_test)
+        model.evaluate(self.X_test, self.y_test)
+        model.report(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, self.y_test)
+
+        # Neural Network -  Deep
+        model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
+        model.fit(self.X_train, self.y_train, epochs=100)
+        model.y_pred = model.predict(self.X_test)
+        model.evaluate(self.X_test, self.y_test)
+        model.report(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, self.y_test)
+
+
+    def f1_score_checker(self, model, average='weighted'):
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=average)
+
+        if f1_score > self.best_f1_score:
+            self.best_f1_score = f1_score
+            self.best_model_pred = model.y_pred
+
+
+    def get_best_pred(self) -> pd.DataFrame:
+        return self.best_model_pred

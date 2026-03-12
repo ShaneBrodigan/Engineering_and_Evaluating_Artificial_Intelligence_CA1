@@ -6,10 +6,14 @@ from sklearn.ensemble import (RandomForestClassifier, AdaBoostClassifier,
                               VotingClassifier)
 from sklearn.linear_model import SGDClassifier
 import tensorflow as tf
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, f1_score
 import pandas as pd
 
 class Model(ABC):
+
+    def __init__(self):
+        self.y_pred = None
+
     @abstractmethod
     def fit(self, X_train, y_train):
         pass
@@ -59,6 +63,12 @@ class Sklearn(Model):
             print(f"{str(label).ljust(14)} {row_values}")
 
         print(f"{'=' * 50}\n")
+
+    def get_f1_score(self, X_test, y_test, average='weighted'):
+        y_pred = self.y_pred
+
+        score = f1_score(y_test, y_pred, average=average)
+        return score
 
 
 class TensorFlow(Model):
