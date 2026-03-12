@@ -53,7 +53,9 @@ def main():
     type_4 = df['type_4']
     df = df.drop(columns=['type_3', 'type_4'])
 
-    modelling = Modelling()
+    modelling = Modelling(df, target_col='type_2', test_size=0.3)
+
+    """
     X_train, X_test, y_train, y_test = modelling.train_test_split(df, target='type_2', test_size=0.3)
 
     model = RandomForest(criterion='entropy', n_estimators=300)
@@ -120,6 +122,7 @@ def main():
     model.evaluate(X_test, y_test)
     model.report(X_test, y_test)
     model.show_confusion_matrix(X_test, y_test)
+    """
 
 if __name__ == "__main__":
     main()
