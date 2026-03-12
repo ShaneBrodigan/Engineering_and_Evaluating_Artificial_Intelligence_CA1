@@ -7,7 +7,7 @@ import preprocess.datacleaning as dc
 from config import Config
 from preprocess import feature_engineering
 from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting, NeuralNetwork
-from modelling.modelling import Modelling
+from modelling.multimodelpredictor import MultiModelPredictor
 
 def main():
     config = Config()
@@ -53,7 +53,8 @@ def main():
     type_4 = df['type_4']
     df = df.drop(columns=['type_3', 'type_4'])
 
-    modelling = Modelling(df, target_col='type_2', test_size=0.3)
+    predictor = MultiModelPredictor(df, target_col='type_2', test_size=0.3)
+    #predictor.get_best_predictions()
 
 if __name__ == "__main__":
     main()

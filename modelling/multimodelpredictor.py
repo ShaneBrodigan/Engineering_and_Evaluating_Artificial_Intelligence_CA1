@@ -5,7 +5,7 @@ from model.model import (RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDMo
 import numpy as np
 import pandas as pd
 
-class Modelling:
+class MultiModelPredictor:
     def __init__(self, df, target_col, test_size):
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size)
         self.best_model_pred = None
@@ -13,6 +13,7 @@ class Modelling:
         self.best_f1_score = 0
         self.best_model_name = ""
         self.do_modelling()
+        print(f"BEST OVERALL F1 Score: {self.best_f1_score} ({self.best_model})")
         predicted_df = self.predict_with_best(self.best_model, df, target_col)
         print(predicted_df.head(50))
 
