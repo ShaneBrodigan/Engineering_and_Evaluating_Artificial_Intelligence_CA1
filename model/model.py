@@ -250,3 +250,9 @@ class NeuralNetwork(TensorFlow):
     def evaluate(self, X_test, y_test):
         loss, acc = self.model.evaluate(X_test, y_test, verbose=0)
         print(f"Neural Network Accuracy: {acc:.2%}")
+
+class ShallowNeuralNetwork(NeuralNetwork):
+    pass
+
+class DeepNeuralNetwork(NeuralNetwork):
+    pass

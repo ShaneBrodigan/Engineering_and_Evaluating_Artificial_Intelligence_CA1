@@ -1,6 +1,7 @@
 from sklearn.model_selection import train_test_split
 from config import Config
-from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting, NeuralNetwork
+from model.model import (RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting,
+                         DeepNeuralNetwork, ShallowNeuralNetwork)
 import numpy as np
 import pandas as pd
 
@@ -9,6 +10,7 @@ class Modelling:
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size)
         self.best_model_pred = None
         self.best_f1_score = 0
+        self.best_model = ""
         self.do_modelling()
 
     def train_test_split(self, df, target, test_size=0.2):
@@ -100,7 +102,7 @@ class Modelling:
         num_features = self.X_train.shape[1]
         num_classes = len(np.unique(self.y_train))
 
-        model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
+        model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
         model.fit(self.X_train, self.y_train, epochs=100)
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
@@ -111,7 +113,7 @@ class Modelling:
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # Neural Network -  Deep
-        model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
+        model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
         model.fit(self.X_train, self.y_train, epochs=100)
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
@@ -128,8 +130,9 @@ class Modelling:
         if f1_score > self.best_f1_score:
             self.best_f1_score = f1_score
             self.best_model_pred = model.y_pred
+            self.best_model = model.__class__.__name__
 
 
     def get_best_pred(self) -> pd.DataFrame:
-        print(f"BEST OVERALL F1: {self.best_f1_score}")
+        print(f"BEST OVERALL F1 Score: {self.best_f1_score} ({self.best_model})")
         return self.best_model_pred
