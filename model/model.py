@@ -6,7 +6,8 @@ from sklearn.ensemble import (RandomForestClassifier, AdaBoostClassifier,
                               VotingClassifier)
 from sklearn.linear_model import SGDClassifier
 import tensorflow as tf
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
+import pandas as pd
 
 class Model(ABC):
     @abstractmethod
@@ -38,6 +39,27 @@ class Sklearn(Model):
         score = self.model.score(X_test, y_test)
         print(f"{self.__class__.__name__} Accuracy: {score:.2%}")
 
+    def show_confusion_matrix(self, X_test, y_test):
+        """Generates and prints a structured, readable confusion matrix."""
+        y_pred = self.predict(X_test)
+        labels = self.model.classes_
+        cm = confusion_matrix(y_test, y_pred, labels=labels)
+
+        # Wrap in DataFrame for structure
+        cm_df = pd.DataFrame(cm, index=labels, columns=labels)
+
+        print(f"\n{'=' * 20} {self.__class__.__name__} {'=' * 20}")
+        print(f"CONFUSION MATRIX")
+        print(f"{' ' * 15} PREDICTED")
+        print(f"ACTUAL {' ' * 8}" + "  ".join([str(l).ljust(5) for l in labels]))
+
+        # Iterate through the DataFrame to print rows with better spacing
+        for i, label in enumerate(labels):
+            row_values = "  ".join([str(val).ljust(5) for val in cm[i]])
+            print(f"{str(label).ljust(14)} {row_values}")
+
+        print(f"{'=' * 50}\n")
+
 
 class TensorFlow(Model):
     @abstractmethod
@@ -47,6 +69,37 @@ class TensorFlow(Model):
     @abstractmethod
     def predict(self, X_test):
         pass
+
+    def report(self, X_test, y_test):
+        """Generates a detailed classification report for TensorFlow models."""
+        y_pred = self.predict(X_test)
+        print(f"\n--- {self.__class__.__name__} Classification Report ---")
+        print(classification_report(y_test, y_pred))
+
+    def evaluate(self, X_test, y_test):
+        """Standard accuracy evaluation for TensorFlow models."""
+        # Using the built-in Keras evaluate method
+        loss, acc = self.model.evaluate(X_test, y_test, verbose=0)
+        print(f"{self.__class__.__name__} Accuracy: {acc:.2%}")
+
+    def show_confusion_matrix(self, X_test, y_test):
+        """Generates and prints a structured confusion matrix to the console."""
+        y_pred = self.predict(X_test)
+
+        # In TF, we derive labels from the unique values in the ground truth
+        labels = np.unique(y_test)
+        cm = confusion_matrix(y_test, y_pred, labels=labels)
+
+        print(f"\n{'=' * 20} {self.__class__.__name__} {'=' * 20}")
+        print(f"CONFUSION MATRIX")
+        print(f"{' ' * 15} PREDICTED")
+        print(f"ACTUAL {' ' * 8}" + "  ".join([str(l).ljust(5) for l in labels]))
+
+        for i, label in enumerate(labels):
+            row_values = "  ".join([str(val).ljust(5) for val in cm[i]])
+            print(f"{str(label).ljust(14)} {row_values}")
+
+        print(f"{'=' * 50}\n")
 
 class RandomForest(Sklearn):
     def __init__(self, **kwargs):

@@ -61,30 +61,35 @@ def main():
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
     model.report(X_test, y_test)
+    model.show_confusion_matrix(X_test, y_test)
 
     model = AdaBoost(n_estimators=300, learning_rate=0.5)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
     model.report(X_test, y_test)
+    model.show_confusion_matrix(X_test, y_test)
 
     model = ExtraTrees(n_estimators=300, criterion='entropy', n_jobs=-1)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
     model.report(X_test, y_test)
+    model.show_confusion_matrix(X_test, y_test)
 
     model = HistGradient(max_iter=300, learning_rate=0.1)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
     model.report(X_test, y_test)
+    model.show_confusion_matrix(X_test, y_test)
 
     model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
     model.report(X_test, y_test)
+    model.show_confusion_matrix(X_test, y_test)
 
     # Voting Classifier pipeline
     rf = RandomForest(n_estimators=100, criterion='entropy')
@@ -99,6 +104,7 @@ def main():
     ensemble.fit(X_train, y_train)
     ensemble.evaluate(X_test, y_test)
     model.report(X_test, y_test)
+    model.show_confusion_matrix(X_test, y_test)
 
     #Neural Network
     # 1. Determine shapes based on your preprocessed data
@@ -112,7 +118,8 @@ def main():
     model.fit(X_train, y_train, epochs=10)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
-
+    model.report(X_test, y_test)
+    model.show_confusion_matrix(X_test, y_test)
 
 if __name__ == "__main__":
     main()
