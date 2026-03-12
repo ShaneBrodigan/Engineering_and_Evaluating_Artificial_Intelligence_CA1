@@ -4,6 +4,7 @@ import sys
 
 class Config:
     ESSENTIAL_COLS = ["interaction_content", "ticket_summary"]
+    SELECTED_F1_AVERAGE = "macro"
 
     def __init__(self):
         self.essential_cols = self.ESSENTIAL_COLS

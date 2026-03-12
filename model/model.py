@@ -111,6 +111,12 @@ class TensorFlow(Model):
 
         print(f"{'=' * 50}\n")
 
+    def get_f1_score(self, X_test, y_test, average='weighted'):
+        y_pred = self.y_pred
+
+        score = f1_score(y_test, y_pred, average=average)
+        return score
+
 class RandomForest(Sklearn):
     def __init__(self, **kwargs):
         self.model = RandomForestClassifier(**kwargs)

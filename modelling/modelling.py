@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+from config import Config
 from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting, NeuralNetwork
 import numpy as np
 import pandas as pd
@@ -19,6 +20,7 @@ class Modelling:
         return X_train, X_test, y_train, y_test
 
     def do_modelling(self):
+        c = Config()
 
         # Random Forest
         model = RandomForest(criterion='entropy', n_estimators=300)
@@ -26,10 +28,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
-        f1_score = model.get_f1_score(self.X_test, self.y_test, average='weighted')
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
-        self.f1_score_checker(model, average='weighted')
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # AdaBoost
         model = AdaBoost(n_estimators=300, learning_rate=0.5)
@@ -37,7 +39,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # ExtraTrees
         model = ExtraTrees(n_estimators=300, criterion='entropy', n_jobs=-1)
@@ -45,7 +50,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # HistGradient
         model = HistGradient(max_iter=300, learning_rate=0.1)
@@ -53,7 +61,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # SDGModel
         model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
@@ -61,7 +72,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # Voting Classifier pipeline
         rf = RandomForest(n_estimators=100, criterion='entropy')
@@ -77,7 +91,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # Neural Network - Shallow
         num_features = self.X_train.shape[1]
@@ -88,7 +105,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # Neural Network -  Deep
         model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
@@ -96,7 +116,10 @@ class Modelling:
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
+        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
 
     def f1_score_checker(self, model, average='weighted'):
@@ -108,4 +131,5 @@ class Modelling:
 
 
     def get_best_pred(self) -> pd.DataFrame:
+        print(f"BEST OVERALL F1: {self.best_f1_score}")
         return self.best_model_pred
