@@ -89,8 +89,7 @@ def main():
     ensemble = Voting(estimators=[
         ('rf_model', rf),
         ('et_model', et),
-        ('ada_model', ada)
-    ], voting='hard')
+        ('ada_model', ada)], voting='hard')
 
     ensemble.fit(X_train, y_train)
     ensemble.evaluate(X_test, y_test)
@@ -104,7 +103,7 @@ def main():
     model = NeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128,64,32])
 
     # We already have X_train, X_test, y_train, y_test from model.train_test_split
-    model.fit(X_train, y_train)
+    model.fit(X_train, y_train, epochs=10)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
 

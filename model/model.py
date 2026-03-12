@@ -8,14 +8,6 @@ from sklearn.linear_model import SGDClassifier
 import tensorflow as tf
 
 class Model(ABC):
-    def train_test_split(self, df, target, test_size=0.2):
-        y = df[target]
-        X = df.drop(target, axis=1)
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
-
-        return X_train, X_test, y_train, y_test
-
     @abstractmethod
     def fit(self, X_train, y_train):
         pass
@@ -131,6 +123,7 @@ class Voting(Sklearn):
                     Example: [('rf', RandomForestClassifier()), ('et', ExtraTreesClassifier())]
         voting: 'hard' (majority vote) or 'soft' (weighted probabilities)
         """
+
         # We extract the actual sklearn model objects from your wrapper classes
         named_estimators = [(name, wrapper.model) for name, wrapper in estimators]
 
@@ -185,6 +178,8 @@ class NeuralNetwork(TensorFlow):
             verbose=0,
             validation_split=0.1
         )
+
+        print(epochs)
 
     def predict(self, X_test):
         # Returns probabilities for each class; we take the index of the highest
