@@ -54,8 +54,6 @@ def main():
     df = df.drop(columns=['type_3', 'type_4'])
 
     modelling = Modelling(df, target_col='type_2', test_size=0.3)
-    best_pred = modelling.get_best_pred()
-    print(best_pred)
 
 if __name__ == "__main__":
     main()

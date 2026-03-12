@@ -9,9 +9,12 @@ class Modelling:
     def __init__(self, df, target_col, test_size):
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size)
         self.best_model_pred = None
+        self.best_model = None
         self.best_f1_score = 0
-        self.best_model = ""
+        self.best_model_name = ""
         self.do_modelling()
+        predicted_df = self.predict_with_best(self.best_model, df, target_col)
+        print(predicted_df.head(50))
 
     def train_test_split(self, df, target, test_size=0.2):
         y = df[target]
@@ -130,9 +133,12 @@ class Modelling:
         if f1_score > self.best_f1_score:
             self.best_f1_score = f1_score
             self.best_model_pred = model.y_pred
-            self.best_model = model.__class__.__name__
+            self.best_model_name = model.__class__.__name__
+            self.best_model = model.model
 
-
-    def get_best_pred(self) -> pd.DataFrame:
-        print(f"BEST OVERALL F1 Score: {self.best_f1_score} ({self.best_model})")
-        return self.best_model_pred
+    def predict_with_best(self, model, df, target_col) -> pd.DataFrame:
+        X_all = df.drop(target_col, axis=1)
+        predictions = model.predict(X_all)
+        new_df = X_all.copy()
+        new_df['predictions'] = predictions
+        return new_df
