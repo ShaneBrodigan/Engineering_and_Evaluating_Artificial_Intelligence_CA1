@@ -56,30 +56,35 @@ def main():
     modelling = Modelling()
     X_train, X_test, y_train, y_test = modelling.train_test_split(df, target='type_2', test_size=0.3)
 
-    model = RandomForest(criterion='entropy', n_estimators=100)
+    model = RandomForest(criterion='entropy', n_estimators=300)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
+    model.report(X_test, y_test)
 
-    model = AdaBoost(n_estimators=100, learning_rate=0.5)
+    model = AdaBoost(n_estimators=300, learning_rate=0.5)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
+    model.report(X_test, y_test)
 
-    model = ExtraTrees(n_estimators=100, criterion='entropy', n_jobs=-1)
+    model = ExtraTrees(n_estimators=300, criterion='entropy', n_jobs=-1)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
+    model.report(X_test, y_test)
 
-    model = HistGradient(max_iter=100, learning_rate=0.1)
+    model = HistGradient(max_iter=300, learning_rate=0.1)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
+    model.report(X_test, y_test)
 
     model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     model.evaluate(X_test, y_test)
+    model.report(X_test, y_test)
 
     # Voting Classifier pipeline
     rf = RandomForest(n_estimators=100, criterion='entropy')
@@ -93,6 +98,7 @@ def main():
 
     ensemble.fit(X_train, y_train)
     ensemble.evaluate(X_test, y_test)
+    model.report(X_test, y_test)
 
     #Neural Network
     # 1. Determine shapes based on your preprocessed data

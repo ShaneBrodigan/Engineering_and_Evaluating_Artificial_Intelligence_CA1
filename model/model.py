@@ -6,6 +6,7 @@ from sklearn.ensemble import (RandomForestClassifier, AdaBoostClassifier,
                               VotingClassifier)
 from sklearn.linear_model import SGDClassifier
 import tensorflow as tf
+from sklearn.metrics import classification_report
 
 class Model(ABC):
     @abstractmethod
@@ -16,6 +17,7 @@ class Model(ABC):
     def predict(self, X_test):
         pass
 
+
 class Sklearn(Model):
     @abstractmethod
     def fit(self, X_train, y_train):
@@ -24,6 +26,18 @@ class Sklearn(Model):
     @abstractmethod
     def predict(self, X_test):
         pass
+
+    def report(self, X_test, y_test):
+        """Generates a detailed classification report including Precision, Recall, and F1-Score."""
+        y_pred = self.predict(X_test)
+        print(f"\n--- {self.__class__.__name__} Classification Report ---")
+        print(classification_report(y_test, y_pred))
+
+    def evaluate(self, X_test, y_test):
+        """Standard accuracy evaluation for all Sklearn subclasses."""
+        score = self.model.score(X_test, y_test)
+        print(f"{self.__class__.__name__} Accuracy: {score:.2%}")
+
 
 class TensorFlow(Model):
     @abstractmethod
@@ -46,11 +60,6 @@ class RandomForest(Sklearn):
 
         return y_pred
 
-    def evaluate(self, X_test, y_test):
-        # Separate method for scoring
-        score = self.model.score(X_test, y_test)
-        print(f"RandomForest Accuracy: {score:.2%}")
-
 class AdaBoost(Sklearn):
     def __init__(self, **kwargs):
         self.model = AdaBoostClassifier(**kwargs)
@@ -63,10 +72,6 @@ class AdaBoost(Sklearn):
 
         return y_pred
 
-    def evaluate(self, X_test, y_test):
-        # Uses the built-in sklearn score method
-        score = self.model.score(X_test, y_test)
-        print(f"AdaBoost Accuracy: {score:.2%}")
 
 class ExtraTrees(Sklearn):
     def __init__(self, **kwargs):
@@ -80,9 +85,6 @@ class ExtraTrees(Sklearn):
 
         return y_pred
 
-    def evaluate(self, X_test, y_test):
-        score = self.model.score(X_test, y_test)
-        print(f"Extra Trees Accuracy: {score:.2%}")
 
 class HistGradient(Sklearn):
     def __init__(self, **kwargs):
@@ -96,9 +98,6 @@ class HistGradient(Sklearn):
 
         return y_pred
 
-    def evaluate(self, X_test, y_test):
-        score = self.model.score(X_test, y_test)
-        print(f"HistGradientBoosting Accuracy: {score:.2%}")
 
 class SGDModel(Sklearn):
     def __init__(self, **kwargs):
@@ -112,9 +111,6 @@ class SGDModel(Sklearn):
 
         return y_pred
 
-    def evaluate(self, X_test, y_test):
-        score = self.model.score(X_test, y_test)
-        print(f"SGDClassifier Accuracy: {score:.2%}")
 
 class Voting(Sklearn):
     def __init__(self, estimators, voting='hard', **kwargs):
@@ -136,10 +132,6 @@ class Voting(Sklearn):
         y_pred = self.model.predict(X_test)
 
         return y_pred
-
-    def evaluate(self, X_test, y_test):
-        score = self.model.score(X_test, y_test)
-        print(f"Voting Classifier Accuracy: {score:.2%}")
 
 
 class NeuralNetwork(TensorFlow):
