@@ -1,6 +1,9 @@
+from enum import unique
+
 import pandas as pd
 from tensorflow.python.ops.parallel_for.pfor import WrappedTensor
 
+from preprocess.feature_engineering import FeatureEngineering
 from preprocess.inputoutput import Reader, Writer
 import numpy as np
 import preprocess.datacleaning as dc
@@ -76,6 +79,18 @@ def main():
 
     # *********  Hierarchical  *************
     predictor = MultiModelPredictor(df, target_col='type_2', test_size=0.3)
+    h_type_2_predictions_df = predictor.predict_with_best(df)
+
+    h_type_2_predictions_df['type_3'] = type_3
+    na_handler = dc.NaHandler(essential_col_names=['type_3'])
+    h_na_handled_df = na_handler.drop_na_rows(h_type_2_predictions_df)
+
+    fe = FeatureEngineering(h_na_handled_df)
+    filtered_dfs_dict = fe.col_class_splitter('type_2_predictions')
+
+    for df in filtered_dfs_dict.values():
+        print(df.info())
+
 
 if __name__ == "__main__":
     main()

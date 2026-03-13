@@ -1,4 +1,5 @@
 from .Transform import OnehotEncode, LabelEncode, WordEmbeddings, Normalize, Standardize, FrequencyEncode
+import pandas as pd
 
 identified_cols ={}
 
@@ -68,3 +69,14 @@ class FeatureEngineering:
         df = standardize.transform(df)
 
         return df
+
+
+    def col_class_splitter(self, col) -> dict:
+        df = self.dataframe
+        unique_classes = df[col].unique()
+        split_dfs = dict.fromkeys(unique_classes)
+
+        for cls in unique_classes:
+            split_dfs[cls] = df[df[col] == cls].copy()
+
+        return split_dfs
