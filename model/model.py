@@ -205,11 +205,6 @@ class Voting(Sklearn):
 
 class NeuralNetwork(TensorFlow):
     def __init__(self, input_dim, num_classes, hidden_layers=[64, 32], dropout_rate=0.2):
-        """
-        input_dim: Number of features in X
-        num_classes: Number of unique categories in y
-        hidden_layers: List containing number of neurons per layer
-        """
         model = tf.keras.Sequential()
 
         # Input Layer
@@ -218,9 +213,9 @@ class NeuralNetwork(TensorFlow):
         # Hidden Layers
         for units in hidden_layers:
             model.add(tf.keras.layers.Dense(units, activation='relu'))
-            model.add(tf.keras.layers.Dropout(dropout_rate))  # Prevents overfitting
+            model.add(tf.keras.layers.Dropout(dropout_rate))
 
-        # Output Layer: Softmax scales outputs to probabilities that sum to 1
+        # Output Layer: Must have neurons equal to max(label) + 1
         model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
 
         model.compile(
@@ -231,7 +226,7 @@ class NeuralNetwork(TensorFlow):
         self.model = model
 
     def fit(self, X_train, y_train, epochs=50, batch_size=32):
-        # We use a validation split to monitor performance during training
+        # Increased visibility: changed verbose to 1 if you want to see training progress
         self.model.fit(
             X_train, y_train,
             epochs=epochs,
@@ -239,12 +234,11 @@ class NeuralNetwork(TensorFlow):
             verbose=0,
             validation_split=0.1
         )
-
-        print(epochs)
+        print(f"Neural Network trained for {epochs} epochs.")
 
     def predict(self, X_test):
-        # Returns probabilities for each class; we take the index of the highest
-        predictions = self.model.predict(X_test)
+        # Added verbose=0 to hide the progress bars during reporting
+        predictions = self.model.predict(X_test, verbose=0)
         return np.argmax(predictions, axis=1)
 
     def evaluate(self, X_test, y_test):

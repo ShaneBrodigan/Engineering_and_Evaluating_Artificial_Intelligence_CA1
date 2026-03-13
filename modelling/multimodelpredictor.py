@@ -105,7 +105,11 @@ class MultiModelPredictor:
 
         # Neural Network - Shallow
         num_features = self.X_train.shape[1]
-        num_classes = len(np.unique(self.y_train))
+        #num_classes = len(np.unique(self.y_train)) #int(self.y_train.max() + 1)
+
+        # Combine unique values from both sets, then find the length
+        total_unique = np.unique(np.concatenate([self.y_train, self.y_test]))
+        num_classes = len(total_unique)
 
         model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
         model.fit(self.X_train, self.y_train, epochs=2) # CHANGE IT BACK 100 EPOCHS!!!!!

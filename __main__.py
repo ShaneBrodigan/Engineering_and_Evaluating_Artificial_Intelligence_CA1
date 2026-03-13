@@ -54,21 +54,28 @@ def main():
     df = df.drop(columns=['type_3', 'type_4'])
 
     # ********* Chained Multi Output *************
+
+    # Type 2 Predictions
     predictor = MultiModelPredictor(df, target_col='type_2', test_size=0.3)
     type_2_predictions_df = predictor.get_best_predictions()
 
+    # Type 3 Predictions
     type_2_predictions_df['type_3'] = type_3
-    print(type_2_predictions_df.info())
-    print(type_2_predictions_df.head())
-    print(type_2_predictions_df.shape)
-
     na_handler = dc.NaHandler(essential_col_names=['type_3'])
     df = na_handler.drop_na_rows(type_2_predictions_df)
+    predictor = MultiModelPredictor(df, target_col='type_3', test_size=0.3)
+    type_3_predictions_df = predictor.get_best_predictions()
 
-    #predictor = MultiModelPredictor(df, target_col='type_3', test_size=0.3)
-    #type_3_predictions_df = predictor.get_best_predictions()
+    # Type 4 Predictions
+    type_3_predictions_df['type_4'] = type_4
+    na_handler = dc.NaHandler(essential_col_names=['type_4'])
+    df = na_handler.drop_na_rows(type_3_predictions_df)
+    predictor = MultiModelPredictor(df, target_col='type_4', test_size=0.3)
+    type_4_predictions_df = predictor.get_best_predictions()
 
-
+    print(type_4_predictions_df.info())
+    print(type_4_predictions_df.head())
+    print(type_4_predictions_df.shape)
 
 
 
