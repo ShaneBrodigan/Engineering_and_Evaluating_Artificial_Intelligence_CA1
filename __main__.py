@@ -54,7 +54,9 @@ def main():
     df = df.drop(columns=['type_3', 'type_4'])
 
     predictor = MultiModelPredictor(df, target_col='type_2', test_size=0.3)
-    #predictor.get_best_predictions()
+    type_2_predictions = predictor.get_best_predictions()
+    print(df.type_2_predictions())
+    print(df.type_2_predictions(50))
 
 if __name__ == "__main__":
     main()

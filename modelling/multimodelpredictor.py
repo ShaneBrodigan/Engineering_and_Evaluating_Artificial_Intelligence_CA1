@@ -10,12 +10,13 @@ class MultiModelPredictor:
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size)
         self.best_model_pred = None
         self.best_model = None
+        self.target_col = target_col
         self.best_f1_score = 0
+        self.best_predictions = None
         self.best_model_name = ""
         self.do_modelling()
-        print(f"BEST OVERALL F1 Score: {self.best_f1_score} ({self.best_model})")
-        predicted_df = self.predict_with_best(self.best_model, df, target_col)
-        print(predicted_df.head(50))
+        print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model_name}")
+        self.predict_with_best(self.best_model, df, target_col)
 
     def train_test_split(self, df, target, test_size=0.2):
         y = df[target]
@@ -137,9 +138,12 @@ class MultiModelPredictor:
             self.best_model_name = model.__class__.__name__
             self.best_model = model.model
 
-    def predict_with_best(self, model, df, target_col) -> pd.DataFrame:
+    def predict_with_best(self, model, df, target_col):
         X_all = df.drop(target_col, axis=1)
         predictions = model.predict(X_all)
         new_df = X_all.copy()
-        new_df['predictions'] = predictions
-        return new_df
+        new_df[f'{target_col}_predictions'] = predictions
+        self.best_predictions = new_df
+
+    def get_best_predictions(self):
+        return self.best_predictions
