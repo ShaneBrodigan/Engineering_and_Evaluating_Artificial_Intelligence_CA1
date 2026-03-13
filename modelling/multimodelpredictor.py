@@ -12,11 +12,9 @@ class MultiModelPredictor:
         self.best_model = None
         self.target_col = target_col
         self.best_f1_score = 0
-        self.best_predictions = None
         self.best_model_name = ""
         self.do_modelling()
         print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model_name}")
-        self.predict_with_best(self.best_model, df, target_col)
 
     def train_test_split(self, df, target, test_size=0.2):
         y = df[target]
@@ -112,7 +110,7 @@ class MultiModelPredictor:
         num_classes = len(total_unique)
 
         model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
-        model.fit(self.X_train, self.y_train, epochs=2) # CHANGE IT BACK 100 EPOCHS!!!!!
+        model.fit(self.X_train, self.y_train, epochs=25) # CHANGE IT BACK 100 EPOCHS!!!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
@@ -123,7 +121,7 @@ class MultiModelPredictor:
 
         # Neural Network -  Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
-        model.fit(self.X_train, self.y_train, epochs=2) # CHANGE IT BACK 100 EPOCHS!!!!!
+        model.fit(self.X_train, self.y_train, epochs=25) # CHANGE IT BACK 100 EPOCHS!!!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
@@ -142,12 +140,9 @@ class MultiModelPredictor:
             self.best_model_name = model.__class__.__name__
             self.best_model = model.model
 
-    def predict_with_best(self, model, df, target_col):
-        X_all = df.drop(target_col, axis=1)
-        predictions = model.predict(X_all)
+    def predict_with_best(self, df):
+        X_all = df.drop(self.target_col, axis=1)
+        predictions = self.best_model.predict(X_all)
         new_df = X_all.copy()
-        new_df[f'{target_col}_predictions'] = predictions
-        self.best_predictions = new_df
-
-    def get_best_predictions(self):
-        return self.best_predictions
+        new_df[f'{self.target_col}_predictions'] = predictions
+        return new_df
