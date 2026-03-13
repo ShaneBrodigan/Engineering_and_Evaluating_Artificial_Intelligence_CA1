@@ -14,7 +14,7 @@ class MultiModelPredictor:
         self.best_f1_score = 0
         self.best_model_name = ""
         self.do_modelling()
-        print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model_name}")
+        print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model.__class__.__name__}") #self.__class__.__name__
 
     def train_test_split(self, df, target, test_size=0.2, random_state=42):
         y = df[target]
