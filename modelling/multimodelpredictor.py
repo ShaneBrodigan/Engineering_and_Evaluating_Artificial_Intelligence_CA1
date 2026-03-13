@@ -14,7 +14,7 @@ class MultiModelPredictor:
         self.best_f1_score = 0
         self.best_model_name = ""
         self.do_modelling()
-        print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model.__class__.__name__}") #self.__class__.__name__
+        print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model_name}")
 
     def train_test_split(self, df, target, test_size=0.2, random_state=42):
         y = df[target]
@@ -110,7 +110,7 @@ class MultiModelPredictor:
         num_classes = len(total_unique)
 
         model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
-        model.fit(self.X_train, self.y_train, epochs=150)
+        model.fit(self.X_train, self.y_train, epochs=2) # REPLACE WITH 150!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
@@ -121,7 +121,7 @@ class MultiModelPredictor:
 
         # Neural Network -  Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
-        model.fit(self.X_train, self.y_train, epochs=150)
+        model.fit(self.X_train, self.y_train, epochs=2) # REPLACE WITH 150!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
@@ -137,7 +137,7 @@ class MultiModelPredictor:
         if f1_score > self.best_f1_score:
             self.best_f1_score = f1_score
             self.best_model_pred = model.y_pred
-            self.best_model_name = model.model.__class__.__name__
+            self.best_model_name = model.__class__.__name__
             self.best_model = model
 
     def predict_with_best(self, df):
