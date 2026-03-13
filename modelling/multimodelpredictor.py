@@ -108,7 +108,7 @@ class MultiModelPredictor:
         num_classes = len(np.unique(self.y_train))
 
         model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
-        model.fit(self.X_train, self.y_train, epochs=100)
+        model.fit(self.X_train, self.y_train, epochs=2) # CHANGE IT BACK 100 EPOCHS!!!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
@@ -119,7 +119,7 @@ class MultiModelPredictor:
 
         # Neural Network -  Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
-        model.fit(self.X_train, self.y_train, epochs=100)
+        model.fit(self.X_train, self.y_train, epochs=2) # CHANGE IT BACK 100 EPOCHS!!!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)

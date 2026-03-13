@@ -53,10 +53,24 @@ def main():
     type_4 = df['type_4']
     df = df.drop(columns=['type_3', 'type_4'])
 
+    # ********* Chained Multi Output *************
     predictor = MultiModelPredictor(df, target_col='type_2', test_size=0.3)
-    type_2_predictions = predictor.get_best_predictions()
-    print(df.type_2_predictions())
-    print(df.type_2_predictions(50))
+    type_2_predictions_df = predictor.get_best_predictions()
+
+    type_2_predictions_df['type_3'] = type_3
+    print(type_2_predictions_df.info())
+    print(type_2_predictions_df.head())
+    print(type_2_predictions_df.shape)
+
+    na_handler = dc.NaHandler(essential_col_names=['type_3'])
+    df = na_handler.drop_na_rows(type_2_predictions_df)
+
+    #predictor = MultiModelPredictor(df, target_col='type_3', test_size=0.3)
+    #type_3_predictions_df = predictor.get_best_predictions()
+
+
+
+
 
 if __name__ == "__main__":
     main()

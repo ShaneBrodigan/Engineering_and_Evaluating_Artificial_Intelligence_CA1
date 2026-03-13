@@ -8,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from deep_translator import GoogleTranslator
 from deep_translator.exceptions import NotValidLength
 import spacy
+import numpy as np
 
 WORD_EMBEDDING_COLS = ["interaction_content", "ticket_summary"]
 ONE_HOT_COLS = ['type_1']
@@ -49,7 +50,8 @@ class LabelEncode(StringTransform):
             return df
 
         for col in LABEL_ENCODE_COLS:
-            df[col] = df[col].astype("category").cat.codes
+            codes = df[col].astype("category").cat.codes
+            df[col] = codes.replace(-1, np.nan) # converting -1 values to nans, so nans can be handled.
 
         return df
 
