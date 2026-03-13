@@ -7,7 +7,7 @@ import pandas as pd
 
 class MultiModelPredictor:
     def __init__(self, df, target_col, test_size):
-        self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size)
+        self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size, random_state=42)
         self.best_model_pred = None
         self.best_model = None
         self.target_col = target_col
@@ -16,11 +16,11 @@ class MultiModelPredictor:
         self.do_modelling()
         print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model_name}")
 
-    def train_test_split(self, df, target, test_size=0.2):
+    def train_test_split(self, df, target, test_size=0.2, random_state=42):
         y = df[target]
         X = df.drop(target, axis=1)
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
 
         return X_train, X_test, y_train, y_test
 
@@ -110,7 +110,7 @@ class MultiModelPredictor:
         num_classes = len(total_unique)
 
         model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
-        model.fit(self.X_train, self.y_train, epochs=25) # CHANGE IT BACK 100 EPOCHS!!!!!
+        model.fit(self.X_train, self.y_train, epochs=10) # CHANGE IT BACK 100 EPOCHS!!!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
@@ -121,7 +121,7 @@ class MultiModelPredictor:
 
         # Neural Network -  Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
-        model.fit(self.X_train, self.y_train, epochs=25) # CHANGE IT BACK 100 EPOCHS!!!!!
+        model.fit(self.X_train, self.y_train, epochs=10) # CHANGE IT BACK 100 EPOCHS!!!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, self.y_test)
         model.report(self.X_test, self.y_test)
