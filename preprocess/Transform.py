@@ -45,14 +45,24 @@ class OnehotEncode(StringTransform):
         return df
 
 class LabelEncode(StringTransform):
+    def __init__(self):#
+        self.encoders = {}
+
     def transform(self, df):
         if len(LABEL_ENCODE_COLS) == 0:
             return df
 
         for col in LABEL_ENCODE_COLS:
-            codes = df[col].astype("category").cat.codes
-            df[col] = codes.replace(-1, np.nan) # converting -1 values to nans, so nans can be handled.
+            le = LabelEncoder()
+            df[col] = le.fit_transform(df[col].astype(str))
+            self.encoders[col] = le
+        return df
 
+    def inverse_transform(self, df):
+        for col in LABEL_ENCODE_COLS:
+            if col in df.columns and col in self.encoders:
+                encoder_instance = self.encoders[col]
+                df[col] = encoder_instance.inverse_transform(df[col].astype(int))
         return df
 
 

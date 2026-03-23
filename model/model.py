@@ -46,7 +46,7 @@ class Sklearn(Model):
     def show_confusion_matrix(self, X_test, y_test):
         """Generates and prints a structured, readable confusion matrix."""
         y_pred = self.predict(X_test)
-        labels = self.model.classes_
+        labels = sorted(set(y_test) | set(y_pred))
         cm = confusion_matrix(y_test, y_pred, labels=labels)
 
         # Wrap in DataFrame for structure
@@ -227,12 +227,13 @@ class NeuralNetwork(TensorFlow):
 
     def fit(self, X_train, y_train, epochs=50, batch_size=32):
         # Increased visibility: changed verbose to 1 if you want to see training progress
+        validation_split = 0.1 if len(X_train) >= 10 else 0.0
         self.model.fit(
             X_train, y_train,
             epochs=epochs,
             batch_size=batch_size,
             verbose=0,
-            validation_split=0.1
+            validation_split=validation_split
         )
         print(f"Neural Network trained for {epochs} epochs.")
 

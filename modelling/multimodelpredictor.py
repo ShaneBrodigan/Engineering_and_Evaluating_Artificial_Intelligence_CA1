@@ -124,7 +124,7 @@ class MultiModelPredictor:
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, y_test_enc)
         model.y_pred = le.inverse_transform(model.y_pred)
-        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE, y_test=y_test_enc)
 
         # Neural Network -  Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
@@ -136,9 +136,12 @@ class MultiModelPredictor:
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, y_test_enc)
         model.y_pred = le.inverse_transform(model.y_pred)
-        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
+        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE, y_test=y_test_enc)
 
-    def f1_score_checker(self, model, average='weighted'):
+    def f1_score_checker(self, model, average='weighted', y_test=None):
+        if y_test is None:
+            y_test = self.y_test
+
         f1_score = model.get_f1_score(self.X_test, self.y_test, average=average)
 
         if f1_score > self.best_f1_score:

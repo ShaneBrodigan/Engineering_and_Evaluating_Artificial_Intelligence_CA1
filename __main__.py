@@ -124,6 +124,14 @@ def main():
     print(h_type_4_predictions_df.shape)
     print(h_type_4_predictions_df.head(50))
     print(h_type_4_predictions_df.tail(50))
+    print('\n')
+    print('------------------------------------------------------------------------')
+    print('\n')
+    print(type_4_predictions_df.info())
+    print(type_4_predictions_df.shape)
+    print(type_4_predictions_df.head(50))
+    print(type_4_predictions_df.tail(50))
 
 if __name__ == "__main__":
+
     main()
