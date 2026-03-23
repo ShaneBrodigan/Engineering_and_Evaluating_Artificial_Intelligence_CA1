@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 from config import Config
 from model.model import (RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting,
                          DeepNeuralNetwork, ShallowNeuralNetwork)
@@ -71,6 +72,7 @@ class MultiModelPredictor:
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
+        """
         # SDGModel
         model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
         model.fit(self.X_train, self.y_train)
@@ -81,6 +83,7 @@ class MultiModelPredictor:
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
+        """
 
         # Voting Classifier pipeline
         rf = RandomForest(n_estimators=100, criterion='entropy')
@@ -100,36 +103,40 @@ class MultiModelPredictor:
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
-        """
-        # Neural Network - Shallow
-        num_features = self.X_train.shape[1]
-        #num_classes = len(np.unique(self.y_train)) #int(self.y_train.max() + 1)
 
-        # Combine unique values from both sets, then find the length
+        # Neural Network - Setup
+        num_features = self.X_train.shape[1]
         total_unique = np.unique(np.concatenate([self.y_train, self.y_test]))
         num_classes = len(total_unique)
 
+        le = LabelEncoder()
+        le.fit(total_unique)
+        y_train_enc = le.transform(self.y_train)
+        y_test_enc = le.transform(self.y_test)
+
+        # Neural Network - Shallow
         model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
-        model.fit(self.X_train, self.y_train, epochs=2) # REPLACE WITH 150!!!
+        model.fit(self.X_train, y_train_enc, epochs=2) # REPLACE WITH 150!!!
         model.y_pred = model.predict(self.X_test)
-        model.evaluate(self.X_test, self.y_test)
-        model.report(self.X_test, self.y_test)
-        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        model.evaluate(self.X_test, y_test_enc)
+        model.report(self.X_test, y_test_enc)
+        f1_score = model.get_f1_score(self.X_test, y_test_enc, average=c.SELECTED_F1_AVERAGE)
         print(f"f1_score: {f1_score}")
-        model.show_confusion_matrix(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, y_test_enc)
+        model.y_pred = le.inverse_transform(model.y_pred)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
         # Neural Network -  Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
-        model.fit(self.X_train, self.y_train, epochs=2) # REPLACE WITH 150!!!
+        model.fit(self.X_train, y_train_enc, epochs=2) # REPLACE WITH 150!!!
         model.y_pred = model.predict(self.X_test)
-        model.evaluate(self.X_test, self.y_test)
-        model.report(self.X_test, self.y_test)
-        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
+        model.evaluate(self.X_test, y_test_enc)
+        model.report(self.X_test, y_test_enc)
+        f1_score = model.get_f1_score(self.X_test, y_test_enc, average=c.SELECTED_F1_AVERAGE)
         print(f"f1_score: {f1_score}")
-        model.show_confusion_matrix(self.X_test, self.y_test)
+        model.show_confusion_matrix(self.X_test, y_test_enc)
+        model.y_pred = le.inverse_transform(model.y_pred)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
-        """
 
     def f1_score_checker(self, model, average='weighted'):
         f1_score = model.get_f1_score(self.X_test, self.y_test, average=average)

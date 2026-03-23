@@ -78,9 +78,11 @@ def main():
 
 
     # *********  Hierarchical  *************
+    # Type 2 Predictions
     predictor = MultiModelPredictor(df, target_col='type_2', test_size=0.3)
     h_type_2_predictions_df = predictor.predict_with_best(df)
 
+    # Type 3 Predictions
     h_type_2_predictions_df['type_3'] = type_3
     na_handler = dc.NaHandler(essential_col_names=['type_3'])
     h_na_handled_df = na_handler.drop_na_rows(h_type_2_predictions_df)
@@ -90,13 +92,38 @@ def main():
     h_type_3_predictions_df = pd.DataFrame()
 
     for df in filtered_dfs_dict.values():
+        # Checks that df >= 2 rows, if it is not try to train a model for it
+        if len(df) < 2:
+            df.rename(columns={'type_3': 'type_3_predictions'}, inplace=True)
+            h_type_3_predictions_df = dc.merge_dfs([h_type_3_predictions_df, df])
+            continue
         predictor = MultiModelPredictor(df, target_col='type_3', test_size=0.3)
         predictions_df_for_cls = predictor.predict_with_best(df)
         h_type_3_predictions_df = dc.merge_dfs([h_type_3_predictions_df, predictions_df_for_cls])
 
-    print(h_type_3_predictions_df.info())
-    print(h_type_3_predictions_df.head(50))
+    # Type 4 Predictions
+    h_type_3_predictions_df['type_4'] = type_4
+    na_handler = dc.NaHandler(essential_col_names=['type_4'])
+    h_na_handled_df = na_handler.drop_na_rows(h_type_3_predictions_df)
 
+    fe = FeatureEngineering(h_na_handled_df)
+    filtered_dfs_dict = fe.col_class_splitter('type_3_predictions')
+    h_type_4_predictions_df = pd.DataFrame()
+
+    for df in filtered_dfs_dict.values():
+        # Checks that df >= 2 rows, if it is not try to train a model for it
+        if len(df) < 2:
+            df.rename(columns={'type_4': 'type_4_predictions'}, inplace=True)
+            h_type_4_predictions_df = dc.merge_dfs([h_type_4_predictions_df, df])
+            continue
+        predictor = MultiModelPredictor(df, target_col='type_4', test_size=0.3)
+        predictions_df_for_cls = predictor.predict_with_best(df)
+        h_type_4_predictions_df = dc.merge_dfs([h_type_4_predictions_df, predictions_df_for_cls])
+
+    print(h_type_4_predictions_df.info())
+    print(h_type_4_predictions_df.shape)
+    print(h_type_4_predictions_df.head(50))
+    print(h_type_4_predictions_df.tail(50))
 
 if __name__ == "__main__":
     main()
