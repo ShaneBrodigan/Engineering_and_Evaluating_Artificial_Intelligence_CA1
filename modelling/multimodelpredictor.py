@@ -37,7 +37,7 @@ class MultiModelPredictor:
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
-    """
+
         # AdaBoost
         model = AdaBoost(n_estimators=300, learning_rate=0.5)
         model.fit(self.X_train, self.y_train)
@@ -100,7 +100,7 @@ class MultiModelPredictor:
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
-
+        """
         # Neural Network - Shallow
         num_features = self.X_train.shape[1]
         #num_classes = len(np.unique(self.y_train)) #int(self.y_train.max() + 1)
@@ -129,7 +129,7 @@ class MultiModelPredictor:
         print(f"f1_score: {f1_score}")
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
-    """
+        """
 
     def f1_score_checker(self, model, average='weighted'):
         f1_score = model.get_f1_score(self.X_test, self.y_test, average=average)

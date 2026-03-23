@@ -87,9 +87,15 @@ def main():
 
     fe = FeatureEngineering(h_na_handled_df)
     filtered_dfs_dict = fe.col_class_splitter('type_2_predictions')
+    h_type_3_predictions_df = pd.DataFrame()
 
     for df in filtered_dfs_dict.values():
-        print(df.info())
+        predictor = MultiModelPredictor(df, target_col='type_3', test_size=0.3)
+        predictions_df_for_cls = predictor.predict_with_best(df)
+        h_type_3_predictions_df = dc.merge_dfs([h_type_3_predictions_df, predictions_df_for_cls])
+
+    print(h_type_3_predictions_df.info())
+    print(h_type_3_predictions_df.head(50))
 
 
 if __name__ == "__main__":
