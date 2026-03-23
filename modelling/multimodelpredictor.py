@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from config import Config
-from model.model import (RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting,
+from model.model import (RandomForest, AdaBoost, ExtraTrees, HistGradient, Voting,
                          DeepNeuralNetwork, ShallowNeuralNetwork)
 import numpy as np
 import pandas as pd
@@ -72,18 +72,6 @@ class MultiModelPredictor:
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
-        """
-        # SDGModel
-        model = SGDModel(loss='log_loss', max_iter=1000, random_state=42)
-        model.fit(self.X_train, self.y_train)
-        model.y_pred = model.predict(self.X_test)
-        model.evaluate(self.X_test, self.y_test)
-        model.report(self.X_test, self.y_test)
-        f1_score = model.get_f1_score(self.X_test, self.y_test, average=c.SELECTED_F1_AVERAGE)
-        print(f"f1_score: {f1_score}")
-        model.show_confusion_matrix(self.X_test, self.y_test)
-        self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
-        """
 
         # Voting Classifier pipeline
         rf = RandomForest(n_estimators=100, criterion='entropy')
@@ -116,7 +104,7 @@ class MultiModelPredictor:
 
         # Neural Network - Shallow
         model = ShallowNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[128, 64, 32])
-        model.fit(self.X_train, y_train_enc, epochs=2) # REPLACE WITH 150!!!
+        model.fit(self.X_train, y_train_enc, epochs=150) # REPLACE WITH 150!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, y_test_enc)
         model.report(self.X_test, y_test_enc)
@@ -128,7 +116,7 @@ class MultiModelPredictor:
 
         # Neural Network -  Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
-        model.fit(self.X_train, y_train_enc, epochs=2) # REPLACE WITH 150!!!
+        model.fit(self.X_train, y_train_enc, epochs=150) # REPLACE WITH 150!!!
         model.y_pred = model.predict(self.X_test)
         model.evaluate(self.X_test, y_test_enc)
         model.report(self.X_test, y_test_enc)
@@ -154,5 +142,5 @@ class MultiModelPredictor:
         X_all = df.drop(self.target_col, axis=1)
         predictions = self.best_model.predict(X_all)
         new_df = X_all.copy()
-        new_df[f'{self.target_col}_predictions'] = predictions
+        new_df[self.target_col] = predictions
         return new_df

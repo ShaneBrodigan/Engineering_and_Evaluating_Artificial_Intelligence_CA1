@@ -9,7 +9,7 @@ import numpy as np
 import preprocess.datacleaning as dc
 from config import Config
 from preprocess import feature_engineering
-from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, SGDModel, Voting, NeuralNetwork
+from model.model import RandomForest, AdaBoost, ExtraTrees, HistGradient, Voting, NeuralNetwork
 from modelling.multimodelpredictor import MultiModelPredictor
 
 def main():
@@ -43,18 +43,19 @@ def main():
     # Translated dataframe to english.
     # Also, cleaned dataframe to get rid of any noise prior creating word embeddings.
 
-    #df = dc.translate_to_en(df)
-    #writer = Writer()
-    #writer.write_out(df, './translated_df.csv')
+    df = dc.translate_to_en(df)
+    writer = Writer()
+    writer.write_out(df, './translated_df.csv')
     df = reader.read_in('./translated_df.csv')
 
     # Feature Engineered Dataset.
     fe = feature_engineering.FeatureEngineering(df)
-    df = fe.process_data()
+    df, label_encoder = fe.process_data()
 
     type_3 = df['type_3']
     type_4 = df['type_4']
     df = df.drop(columns=['type_3', 'type_4'])
+
 
     # ********* Chained Multi  *************
 
@@ -76,6 +77,8 @@ def main():
     predictor = MultiModelPredictor(na_handled_df, target_col='type_4', test_size=0.3)
     type_4_predictions_df = predictor.predict_with_best(type_3_predictions_df)
 
+    multi_chained_predictions = type_4_predictions_df
+
 
     # *********  Hierarchical  *************
     # Type 2 Predictions
@@ -88,13 +91,12 @@ def main():
     h_na_handled_df = na_handler.drop_na_rows(h_type_2_predictions_df)
 
     fe = FeatureEngineering(h_na_handled_df)
-    filtered_dfs_dict = fe.col_class_splitter('type_2_predictions')
+    filtered_dfs_dict = fe.col_class_splitter('type_2')
     h_type_3_predictions_df = pd.DataFrame()
 
     for df in filtered_dfs_dict.values():
         # Checks that df >= 2 rows, if it is not try to train a model for it
         if len(df) < 2:
-            df.rename(columns={'type_3': 'type_3_predictions'}, inplace=True)
             h_type_3_predictions_df = dc.merge_dfs([h_type_3_predictions_df, df])
             continue
         predictor = MultiModelPredictor(df, target_col='type_3', test_size=0.3)
@@ -107,19 +109,21 @@ def main():
     h_na_handled_df = na_handler.drop_na_rows(h_type_3_predictions_df)
 
     fe = FeatureEngineering(h_na_handled_df)
-    filtered_dfs_dict = fe.col_class_splitter('type_3_predictions')
+    filtered_dfs_dict = fe.col_class_splitter('type_3')
     h_type_4_predictions_df = pd.DataFrame()
 
     for df in filtered_dfs_dict.values():
         # Checks that df >= 2 rows, if it is not try to train a model for it
         if len(df) < 2:
-            df.rename(columns={'type_4': 'type_4_predictions'}, inplace=True)
             h_type_4_predictions_df = dc.merge_dfs([h_type_4_predictions_df, df])
             continue
         predictor = MultiModelPredictor(df, target_col='type_4', test_size=0.3)
         predictions_df_for_cls = predictor.predict_with_best(df)
         h_type_4_predictions_df = dc.merge_dfs([h_type_4_predictions_df, predictions_df_for_cls])
 
+    multi_hierarchical_predictions = h_type_4_predictions_df
+
+    """
     print(h_type_4_predictions_df.info())
     print(h_type_4_predictions_df.shape)
     print(h_type_4_predictions_df.head(50))
@@ -131,6 +135,20 @@ def main():
     print(type_4_predictions_df.shape)
     print(type_4_predictions_df.head(50))
     print(type_4_predictions_df.tail(50))
+
+    print('\n')
+    print('------------------------------------------------------------------------')
+    print('\n')
+    """
+
+    #Decoding Prediction columns and outputting to CSV
+    multi_chained_unencoded_df = label_encoder.inverse_transform(multi_chained_predictions)
+    hierarchical_unencoded_df = label_encoder.inverse_transform(multi_hierarchical_predictions)
+
+    writer.write_out(multi_chained_unencoded_df, './multi_chained_predictions.csv')
+    writer.write_out(hierarchical_unencoded_df, './hierarchical_predictions.csv')
+
+
 
 if __name__ == "__main__":
 

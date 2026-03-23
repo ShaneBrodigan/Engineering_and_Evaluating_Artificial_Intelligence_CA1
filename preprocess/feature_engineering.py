@@ -68,7 +68,7 @@ class FeatureEngineering:
         standardize = Standardize()
         df = standardize.transform(df)
 
-        return df
+        return df, label_encode
 
 
     def col_class_splitter(self, col) -> dict:

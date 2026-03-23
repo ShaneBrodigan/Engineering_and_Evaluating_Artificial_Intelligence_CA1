@@ -168,19 +168,6 @@ class HistGradient(Sklearn):
         return y_pred
 
 
-class SGDModel(Sklearn):
-    def __init__(self, **kwargs):
-        self.model = SGDClassifier(**kwargs)
-
-    def fit(self, X_train, y_train):
-        self.model.fit(X_train, y_train)
-
-    def predict(self, X_test):
-        y_pred = self.model.predict(X_test)
-
-        return y_pred
-
-
 class Voting(Sklearn):
     def __init__(self, estimators, voting='hard', **kwargs):
         """

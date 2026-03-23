@@ -54,7 +54,10 @@ class LabelEncode(StringTransform):
 
         for col in LABEL_ENCODE_COLS:
             le = LabelEncoder()
-            df[col] = le.fit_transform(df[col].astype(str))
+            non_null_mask = df[col].notna()
+            df[col] = df[col].astype(object)
+            df.loc[non_null_mask, col] = le.fit_transform(df.loc[non_null_mask, col].astype(str))
+            df[col] = pd.to_numeric(df[col], errors='coerce')
             self.encoders[col] = le
         return df
 
@@ -62,7 +65,11 @@ class LabelEncode(StringTransform):
         for col in LABEL_ENCODE_COLS:
             if col in df.columns and col in self.encoders:
                 encoder_instance = self.encoders[col]
-                df[col] = encoder_instance.inverse_transform(df[col].astype(int))
+                non_null_mask = df[col].notna()
+                df[col] = df[col].astype(object)
+                df.loc[non_null_mask, col] = encoder_instance.inverse_transform(
+                    df.loc[non_null_mask, col].astype(int)
+                )
         return df
 
 
