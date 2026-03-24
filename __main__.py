@@ -37,21 +37,20 @@ def main():
     na_handler = dc.NaHandler(essential_col_names=config.ESSENTIAL_COLS)
     df = na_handler.drop_na_rows(df)
 
-    # Dropped useless columns.
+    # Dropped useless columns which don't offer any training value to model
     df = dc.drop_useless_cols(df)
 
-    # Translated dataframe to english.
-    # Also, cleaned dataframe to get rid of any noise prior creating word embeddings.
-
+    # Translates dataframe to English and saves to CSV at root directory
     df = dc.translate_to_en(df)
     writer = Writer()
     writer.write_out(df, './translated_df.csv')
     df = reader.read_in('./translated_df.csv')
 
-    # Feature Engineered Dataset.
+    # Feature Engineer Dataset by encoding
     fe = feature_engineering.FeatureEngineering(df)
-    df, label_encoder = fe.process_data()
+    df, label_encoder = fe.process_data()   # Returns encoded dataframe for models and label_encoder for decoding later
 
+    # Extracts type_3 and type_4 columns from dataframe prior to model training
     type_3 = df['type_3']
     type_4 = df['type_4']
     df = df.drop(columns=['type_3', 'type_4'])
@@ -77,6 +76,7 @@ def main():
     predictor = MultiModelPredictor(na_handled_df, target_col='type_4', test_size=0.3)
     type_4_predictions_df = predictor.predict_with_best(type_3_predictions_df)
 
+    # Final encoded dataframe from chained multi method
     multi_chained_predictions = type_4_predictions_df
 
 
@@ -121,6 +121,7 @@ def main():
         predictions_df_for_cls = predictor.predict_with_best(df)
         h_type_4_predictions_df = dc.merge_dfs([h_type_4_predictions_df, predictions_df_for_cls])
 
+    # Final encoded dataframe from hierarchical method
     multi_hierarchical_predictions = h_type_4_predictions_df
 
     """
@@ -144,7 +145,6 @@ def main():
     #Decoding Prediction columns and outputting to CSV
     multi_chained_unencoded_df = label_encoder.inverse_transform(multi_chained_predictions)
     hierarchical_unencoded_df = label_encoder.inverse_transform(multi_hierarchical_predictions)
-
     writer.write_out(multi_chained_unencoded_df, './multi_chained_predictions.csv')
     writer.write_out(hierarchical_unencoded_df, './hierarchical_predictions.csv')
 

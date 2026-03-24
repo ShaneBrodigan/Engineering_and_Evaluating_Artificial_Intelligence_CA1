@@ -10,13 +10,6 @@ from deep_translator.exceptions import NotValidLength
 import spacy
 import numpy as np
 
-WORD_EMBEDDING_COLS = ["interaction_content", "ticket_summary"]
-ONE_HOT_COLS = ['type_1']
-LABEL_ENCODE_COLS = ['mailbox', 'innso_typology_ticket_', 'type_2', 'type_3','type_4']
-FREQUENCY_ENCODE_COLS = []
-NORMALIZE_ENCODE_COLS = []
-STANDARDIZE_ENCODE_COLS = []
-
 
 class Transform(ABC):
     @abstractmethod
@@ -35,24 +28,28 @@ class NumericTransform(Transform):
         pass
 
 class OnehotEncode(StringTransform):
+    def __init__(self, ONE_HOT_COLS):
+        self.ONE_HOT_COLS = ONE_HOT_COLS
+
     def transform(self, df):
-        if len(ONE_HOT_COLS) == 0:
+        if len(self.ONE_HOT_COLS) == 0:
             return df
 
-        for col in ONE_HOT_COLS:
+        for col in self.ONE_HOT_COLS:
             df = pd.get_dummies(df, columns=[col])
 
         return df
 
 class LabelEncode(StringTransform):
-    def __init__(self):#
+    def __init__(self, LABEL_ENCODE_COLS):#
+        self.LABEL_ENCODE_COLS = LABEL_ENCODE_COLS
         self.encoders = {}
 
     def transform(self, df):
-        if len(LABEL_ENCODE_COLS) == 0:
+        if len(self.LABEL_ENCODE_COLS) == 0:
             return df
 
-        for col in LABEL_ENCODE_COLS:
+        for col in self.LABEL_ENCODE_COLS:
             le = LabelEncoder()
             non_null_mask = df[col].notna()
             df[col] = df[col].astype(object)
@@ -62,7 +59,7 @@ class LabelEncode(StringTransform):
         return df
 
     def inverse_transform(self, df):
-        for col in LABEL_ENCODE_COLS:
+        for col in self.LABEL_ENCODE_COLS:
             if col in df.columns and col in self.encoders:
                 encoder_instance = self.encoders[col]
                 non_null_mask = df[col].notna()
@@ -74,23 +71,29 @@ class LabelEncode(StringTransform):
 
 
 class FrequencyEncode(StringTransform):
+    def __init__(self, FREQUENCY_ENCODE_COLS):
+        self.FREQUENCY_ENCODE_COLS = FREQUENCY_ENCODE_COLS
+
     def transform(self, df):
-        if len(FREQUENCY_ENCODE_COLS) == 0:
+        if len(self.FREQUENCY_ENCODE_COLS) == 0:
             return df
 
-        for col in FREQUENCY_ENCODE_COLS:
+        for col in self.FREQUENCY_ENCODE_COLS:
             df[col] = df[col].map(df[col].value_counts())
 
         return df
 
 
 class WordEmbeddings(StringTransform):
+    def __init__(self, WORD_EMBEDDING_COLS):
+        self.WORD_EMBEDDING_COLS = WORD_EMBEDDING_COLS
+
     def transform(self, df):
-        if len(WORD_EMBEDDING_COLS) == 0:
+        if len(self.WORD_EMBEDDING_COLS) == 0:
             return df
 
         df = df.reset_index(drop=True)
-        cols_for_wrd_embedding = WORD_EMBEDDING_COLS
+        cols_for_wrd_embedding = self.WORD_EMBEDDING_COLS
         dfs_to_concat = [df.drop(cols_for_wrd_embedding, axis=1)]
 
         for col in cols_for_wrd_embedding:
@@ -107,12 +110,15 @@ class WordEmbeddings(StringTransform):
 
 
 class Normalize(NumericTransform):
+    def __init__(self, NORMALIZE_ENCODE_COLS):
+        self.NORMALIZE_ENCODE_COLS = NORMALIZE_ENCODE_COLS
+
     def transform(self, df):
-        if len(NORMALIZE_ENCODE_COLS) == 0:
+        if len(self.NORMALIZE_ENCODE_COLS) == 0:
             return df
 
         scaler = MinMaxScaler()
-        df[NORMALIZE_ENCODE_COLS] = scaler.fit_transform(df[NORMALIZE_ENCODE_COLS])
+        df[self.NORMALIZE_ENCODE_COLS] = scaler.fit_transform(df[self.NORMALIZE_ENCODE_COLS])
 
         return df
 
@@ -192,12 +198,15 @@ class Translate(StringTransform):
 
 
 class Standardize(NumericTransform):
+    def __init__(self, STANDARDIZE_ENCODE_COLS):
+        self.STANDARDIZE_ENCODE_COLS = STANDARDIZE_ENCODE_COLS
+
     def transform(self, df):
 
-        if len(STANDARDIZE_ENCODE_COLS) == 0:
+        if len(self.STANDARDIZE_ENCODE_COLS) == 0:
             return df
 
         scaler = StandardScaler()
-        df[STANDARDIZE_ENCODE_COLS] = scaler.fit_transform(df[STANDARDIZE_ENCODE_COLS])
+        df[self.STANDARDIZE_ENCODE_COLS] = scaler.fit_transform(df[self.STANDARDIZE_ENCODE_COLS])
 
         return df
