@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-
-from numpy.matlib import empty
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 import pandas as pd
@@ -32,6 +30,7 @@ class OnehotEncode(StringTransform):
         self.ONE_HOT_COLS = ONE_HOT_COLS
 
     def transform(self, df):
+        """Applied one-hot encoding"""
         if len(self.ONE_HOT_COLS) == 0:
             return df
 
@@ -46,6 +45,7 @@ class LabelEncode(StringTransform):
         self.encoders = {}
 
     def transform(self, df):
+        """Applied label encoding to the specified columns and stored each encoder"""
         if len(self.LABEL_ENCODE_COLS) == 0:
             return df
 
@@ -59,6 +59,7 @@ class LabelEncode(StringTransform):
         return df
 
     def inverse_transform(self, df):
+        """Reversed label encoding on prediction columns using stored encoders"""
         for col in self.LABEL_ENCODE_COLS:
             if col in df.columns and col in self.encoders:
                 encoder_instance = self.encoders[col]
@@ -75,6 +76,7 @@ class FrequencyEncode(StringTransform):
         self.FREQUENCY_ENCODE_COLS = FREQUENCY_ENCODE_COLS
 
     def transform(self, df):
+        """Replaced each category value with its frequency count in the column"""
         if len(self.FREQUENCY_ENCODE_COLS) == 0:
             return df
 
@@ -89,6 +91,7 @@ class WordEmbeddings(StringTransform):
         self.WORD_EMBEDDING_COLS = WORD_EMBEDDING_COLS
 
     def transform(self, df):
+        """Replaced text columns with TF-IDF feature vectors capped at 20 features"""
         if len(self.WORD_EMBEDDING_COLS) == 0:
             return df
 
@@ -114,6 +117,7 @@ class Normalize(NumericTransform):
         self.NORMALIZE_ENCODE_COLS = NORMALIZE_ENCODE_COLS
 
     def transform(self, df):
+        """Scaled positive numeric columns to the [0, 1] range using MinMaxScaler"""
         if len(self.NORMALIZE_ENCODE_COLS) == 0:
             return df
 
@@ -125,6 +129,7 @@ class Normalize(NumericTransform):
 class Translate(StringTransform):
 
     def translate_cols(self, df_to_translate):
+        """Translated ticket_summary and interaction_content columns to English row by row"""
         df_to_translate = df_to_translate.reset_index(drop=True)
         df_translate = df_to_translate.copy()
 
@@ -139,6 +144,7 @@ class Translate(StringTransform):
         return df_translate
 
     def get_translation(self, content_to_translate):
+        """Returned the English translation of a string, truncating if it exceeded the API character limit"""
         try:
             translated = GoogleTranslator(source='auto', target='en').translate(content_to_translate)
             return translated
@@ -154,34 +160,30 @@ class Translate(StringTransform):
             return translated
 
     def clean_translated_cols(self, df_to_clean):
+        """Lemmatised and removed stop words and punctuation from translated text columns using spaCy"""
         df_to_clean = df_to_clean.reset_index(drop=True)
         nlp = spacy.load("en_core_web_sm")
 
         for index, row in df_to_clean.iterrows():
-            # 1. Get the translated string
             raw_summary = row['ticket_summary']
             raw_content = row['interaction_content']
 
-            # 2. CONVERT strings to spaCy Docs (This is what provides .is_stop)
             doc_summary = nlp(str(raw_summary))
             doc_content = nlp(str(raw_content))
 
-            # 3. Clean the summary
             cleaned_summary_list = [token.lemma_.lower() for token in doc_summary
                                     if not token.is_stop and not token.is_punct and not token.is_space]
 
-            # 4. Clean the content (This won't error now!)
             cleaned_content_list = [token.lemma_.lower() for token in doc_content
                                     if not token.is_stop and not token.is_punct and not token.is_space]
 
-            # 5. Join the lists back into strings so they fit in the CSV/Dataframe
             summary_str = " ".join(cleaned_summary_list)
             content_str= " ".join(cleaned_content_list)
 
             df_to_clean.at[index, 'ticket_summary'] = summary_str
             df_to_clean.at[index, 'interaction_content'] = content_str
 
-        # If spacy removes all words during cleaning it returns 'null' instead. This causes errors during word embedding
+        # Replaced empty spaCy outputs with a placeholder to prevent word embedding errors
         df_to_clean['ticket_summary'] = df_to_clean['ticket_summary'].replace("null", "Empty")
         df_to_clean['ticket_summary'] = df_to_clean['ticket_summary'].fillna("Empty")
         df_to_clean['interaction_content'] = df_to_clean['interaction_content'].replace("null", "Empty")
@@ -190,6 +192,7 @@ class Translate(StringTransform):
         return df_to_clean
 
     def transform(self, df):
+        """Translated then cleaned text columns in the dataframe"""
         df = self.translate_cols(df)
 
         df = self.clean_translated_cols(df)
@@ -202,7 +205,7 @@ class Standardize(NumericTransform):
         self.STANDARDIZE_ENCODE_COLS = STANDARDIZE_ENCODE_COLS
 
     def transform(self, df):
-
+        """Standardised numeric columns with negative values using StandardScaler"""
         if len(self.STANDARDIZE_ENCODE_COLS) == 0:
             return df
 

@@ -8,6 +8,7 @@ import pandas as pd
 
 class MultiModelPredictor:
     def __init__(self, df, target_col, test_size):
+        """Split the data, ran all models and identified the best performer by f1 score"""
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_split(df, target=target_col, test_size=test_size, random_state=42)
         self.best_model_pred = None
         self.best_model = None
@@ -18,6 +19,7 @@ class MultiModelPredictor:
         print(f"BEST OVERALL F1 Score: {self.best_f1_score} from {self.best_model_name}")
 
     def train_test_split(self, df, target, test_size=0.2, random_state=42):
+        """Split the dataframe into training and test sets based on the target column"""
         y = df[target]
         X = df.drop(target, axis=1)
 
@@ -26,6 +28,7 @@ class MultiModelPredictor:
         return X_train, X_test, y_train, y_test
 
     def do_modelling(self):
+        """Trained and evaluated all model variants, tracking the best by f1 score"""
         c = Config()
 
         # Random Forest
@@ -72,7 +75,6 @@ class MultiModelPredictor:
         model.show_confusion_matrix(self.X_test, self.y_test)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE)
 
-
         # Voting Classifier pipeline
         rf = RandomForest(n_estimators=100, criterion='entropy')
         et = ExtraTrees(n_estimators=100, criterion='entropy')
@@ -114,7 +116,7 @@ class MultiModelPredictor:
         model.y_pred = le.inverse_transform(model.y_pred)
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE, y_test=y_test_enc)
 
-        # Neural Network -  Deep
+        # Neural Network - Deep
         model = DeepNeuralNetwork(input_dim=num_features, num_classes=num_classes, hidden_layers=[612, 256, 128, 32])
         model.fit(self.X_train, y_train_enc, epochs=150) # REPLACE WITH 150!!!
         model.y_pred = model.predict(self.X_test)
@@ -127,6 +129,7 @@ class MultiModelPredictor:
         self.f1_score_checker(model, average=c.SELECTED_F1_AVERAGE, y_test=y_test_enc)
 
     def f1_score_checker(self, model, average='weighted', y_test=None):
+        """Updated the best model record if the current model's F1 score exceeded the previous best"""
         if y_test is None:
             y_test = self.y_test
 
@@ -139,6 +142,7 @@ class MultiModelPredictor:
             self.best_model = model
 
     def predict_with_best(self, df):
+        """Used the best model to generate predictions across the full dataset and returned the result as a dataframe"""
         X_all = df.drop(self.target_col, axis=1)
         predictions = self.best_model.predict(X_all)
         new_df = X_all.copy()

@@ -8,6 +8,7 @@ class Config:
     SELECTED_F1_AVERAGE = "macro"
 
     def __init__(self):
+        """Loaded spaCy model and downloaded it if not already present"""
         self.essential_cols = self.ESSENTIAL_COLS
         self.model_target_cols = self.MODEL_TARGET_COLS
 
